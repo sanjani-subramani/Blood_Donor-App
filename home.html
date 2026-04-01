@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🩸 Blood Donor Alert Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --blood-red: #dc143c;
+            --hospital-blue: #2c5aa0;
+            --success-green: #28a745;
+            --not-selected-red: #dc3545;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .hero-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            margin: 2rem 0;
+            text-align: center;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .donor-card {
+            border-left: 5px solid var(--blood-red);
+        }
+
+        .hospital-card {
+            border-left: 5px solid var(--hospital-blue);
+        }
+
+        .btn-donor {
+            background: linear-gradient(45deg, #dc143c, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-donor:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
+            color: white;
+        }
+
+        .btn-hospital {
+            background: linear-gradient(45deg, #2c5aa0, #5a9fd4);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-hospital:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(44, 90, 160, 0.4);
+            color: white;
+        }
+
+        .btn-back {
+            background: linear-gradient(45deg, #6c757d, #9ca3af);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+
+        .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--blood-red);
+            box-shadow: 0 0 0 0.2rem rgba(220, 20, 60, 0.25);
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .stats-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .navbar {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .info-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            color: white;
+        }
+
+        .requirements-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .blood-type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .blood-type-option {
+            text-align: center;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .blood-type-option:hover {
+            border-color: var(--blood-red);
+            background: rgba(220, 20, 60, 0.1);
+        }
+
+        .blood-type-option.selected {
+            border-color: var(--blood-red);
+            background: var(--blood-red);
+            color: white;
+        }
+
+        .success-message {
+            background: linear-gradient(45deg, var(--success-green), #34ce57);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showPage('homePage')">
+                <i class="fas fa-heartbeat"></i> Blood Donor Alert Platform
+            </a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="homePage" class="page active">
+            <div class="hero-section">
+                <h1 class="display-4 mb-4">
+                    <i class="fas fa-hand-holding-heart pulse"></i> Save Lives, One Drop at a Time
+                </h1>
+                <p class="lead">Connect donors with hospitals instantly when blood is needed most</p>
+                <p class="mt-4">Join thousands of heroes who are making a difference in their community</p>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card donor-card">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-user-plus fa-3x text-danger"></i>
+                        </div>
+                        <h3 class="text-center">Be a Life Saver</h3>
+                        <p class="text-center">Register as a blood donor and get notified when hospitals in your area need your blood type.</p>
+                        <button class="btn btn-donor w-100 mt-3" onclick="showPage('donorPage')">
+                            <i class="fas fa-hand-holding-heart"></i> Become a Donor
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card hospital-card">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-hospital fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="text-center">Hospital Registration</h3>
+                        <p class="text-center">Register your hospital to get access to our network of urgent blood donors.</p>
+                        <button class="btn btn-hospital w-100 mt-3" onclick="showPage('hospitalPage')">
+                            <i class="fas fa-hospital"></i> Hospital Registration
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <div class="feature-card hospital-card">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-hand-holding-medical fa-3x text-success"></i>
+                        </div>
+                        <h3 class="text-center">Post a Blood Request</h3>
+                        <p class="text-center">Already registered? Post an urgent blood request to notify nearby donors instantly.</p>
+                        <button class="btn btn-hospital w-100 mt-3" onclick="showPage('requestPage')">
+                            <i class="fas fa-plus"></i> Post a Request
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h2 class="text-danger">1,247</h2>
+                        <p>Registered Donors</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h2 class="text-primary">89</h2>
+                        <p>Partner Hospitals</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h2 class="text-success">24/7</h2>
+                        <p>Alert System</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card">
+                        <h2 class="text-warning">< 5min</h2>
+                        <p>Response Time</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-12">
+                    <div class="info-section">
+                        <h2 class="text-center"><i class="fas fa-bullhorn"></i> Community & News</h2>
+                        <p class="text-center text-muted">Find nearby blood donation drives and stay informed.</p>
+                        <div class="list-group mt-4">
+                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1 text-primary">City Hall Blood Drive</h5>
+                                    <small class="text-muted">3 days ago</small>
+                                </div>
+                                <p class="mb-1">Donate blood at the annual city hall drive. Every donation saves up to 3 lives!</p>
+                                <small class="text-success"><i class="fas fa-calendar-alt"></i> Sep 10, 2025</small>
+                                <small class="text-danger ms-3"><i class="fas fa-map-marker-alt"></i> New Delhi</small>
+                            </a>
+                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start mt-2">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1 text-primary">Red Cross Mobile Donation Camp</h5>
+                                    <small class="text-muted">1 week ago</small>
+                                </div>
+                                <p class="mb-1">The Red Cross is hosting a mobile camp in Sector 5. All blood types are needed!</p>
+                                <small class="text-success"><i class="fas fa-calendar-alt"></i> Sep 18, 2025</small>
+                                <small class="text-danger ms-3"><i class="fas fa-map-marker-alt"></i> Sector 5, Haryana</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="donorPage" class="page">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="feature-card">
+                        <button class="btn btn-back mb-3" onclick="showPage('homePage')">
+                            <i class="fas fa-arrow-left"></i> Back to Home
+                        </button>
+                        
+                        <div class="text-center mb-4">
+                            <i class="fas fa-user-plus fa-4x text-danger mb-3"></i>
+                            <h2>Donor Registration</h2>
+                            <p class="text-muted">Join our community of life savers</p>
+                        </div>
+                        
+                        <form id="donorForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-user"></i> Full Name *</label>
+                                        <input type="text" class="form-control" id="donorName" placeholder="Enter your full name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-phone"></i> Phone Number *</label>
+                                        <input type="tel" class="form-control" id="donorPhone" placeholder="+91 XXXXX XXXXX" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-envelope"></i> Email Address *</label>
+                                        <input type="email" class="form-control" id="donorEmail" placeholder="your.email@example.com" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-calendar"></i> Date of Birth *</label>
+                                        <input type="date" class="form-control" id="donorDob" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-id-card"></i> Aadhar Number *</label>
+                                        <input type="text" class="form-control" id="donorAadhar" placeholder="XXXX XXXX XXXX" maxlength="14" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-weight"></i> Weight (kg) *</label>
+                                        <input type="number" class="form-control" id="donorWeight" placeholder="50" min="45" required>
+                                        <small class="text-muted">Minimum 45kg required</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label"><i class="fas fa-tint"></i> Blood Type *</label>
+                                <div class="blood-type-grid">
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'A+')" data-type="A+">
+                                        <strong>A+</strong>
+                                    </div>
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'A-')" data-type="A-">
+                                        <strong>A-</strong>
+                                    </div>
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'B+')" data-type="B+">
+                                        <strong>B+</strong>
+                                    </div>
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'B-')" data-type="B-">
+                                        <strong>B-</strong>
+                                    </div>
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'AB+')" data-type="AB+">
+                                        <strong>AB+</strong>
+                                    </div>
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'AB-')" data-type="AB-">
+                                        <strong>AB-</strong>
+                                    </div>
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'O+')" data-type="O+">
+                                        <strong>O+</strong>
+                                    </div>
+                                    <div class="blood-type-option" onclick="selectBloodType(this, 'O-')" data-type="O-">
+                                        <strong>O-</strong>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="donorBloodType" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-map-marker-alt"></i> Address *</label>
+                                <textarea class="form-control" id="donorAddress" rows="3" placeholder="Enter your complete address" required></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">City *</label>
+                                        <input type="text" class="form-control" id="donorCity" placeholder="Your city" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">State *</label>
+                                        <input type="text" class="form-control" id="donorState" placeholder="Your state" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">PIN Code *</label>
+                                        <input type="text" class="form-control" id="donorPin" placeholder="110001" maxlength="6" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Latitude</label>
+                                        <input type="number" step="0.000001" class="form-control" id="donorLat" placeholder="28.6139">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Longitude</label>
+                                        <input type="number" step="0.000001" class="form-control" id="donorLng" placeholder="77.2090">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-secondary" onclick="getLocation('donor')">
+                                    <i class="fas fa-crosshairs"></i> Use My Current Location
+                                </button>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-calendar-alt"></i> Last Donation Date (if any)</label>
+                                <input type="date" class="form-control" id="lastDonation">
+                                <small class="text-muted">Leave blank if you're a first-time donor</small>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="donorTerms" required>
+                                    <label class="form-check-label" for="donorTerms">
+                                        I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="donorNotifications">
+                                    <label class="form-check-label" for="donorNotifications">
+                                        I want to receive SMS/WhatsApp notifications for urgent blood requests
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-donor w-100 py-3" onclick="registerDonor()">
+                                <i class="fas fa-user-check"></i> Complete Registration
+                            </button>
+                        </form>
+                        
+                        <div class="loading-spinner" id="donorLoading">
+                            <div class="spinner-border text-danger" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Registering donor...</p>
+                        </div>
+                        
+                        <div id="donorSuccess" class="success-message">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <h4>Registration Successful!</h4>
+                            <p>Thank you for joining our community of life savers. You'll receive notifications when hospitals near you need your blood type.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="requirements-card">
+                        <h5><i class="fas fa-info-circle text-primary"></i> Donor Requirements</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Age: 18-65 years</li>
+                            <li><i class="fas fa-check text-success"></i> Weight: Minimum 45kg</li>
+                            <li><i class="fas fa-check text-success"></i> Good general health</li>
+                            <li><i class="fas fa-check text-success"></i> No recent illness</li>
+                            <li><i class="fas fa-check text-success"></i> 3 months gap between donations</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="requirements-card mt-3">
+                        <h5><i class="fas fa-heart text-danger"></i> Benefits</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Save up to 3 lives per donation</li>
+                            <li><i class="fas fa-check text-success"></i> Free health checkup</li>
+                            <li><i class="fas fa-check text-success"></i> Donation certificate</li>
+                            <li><i class="fas fa-check text-success"></i> Community recognition</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="hospitalPage" class="page">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="feature-card">
+                        <button class="btn btn-back mb-3" onclick="showPage('homePage')">
+                            <i class="fas fa-arrow-left"></i> Back to Home
+                        </button>
+                        
+                        <div class="text-center mb-4">
+                            <i class="fas fa-hospital fa-4x text-primary mb-3"></i>
+                            <h2>Hospital Registration</h2>
+                            <p class="text-muted">Join our network to access urgent blood donors</p>
+                        </div>
+                        
+                        <form id="hospitalForm">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-hospital"></i> Hospital Name *</label>
+                                <input type="text" class="form-control" id="hospitalName" placeholder="Enter hospital name" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-id-badge"></i> Registration Number *</label>
+                                        <input type="text" class="form-control" id="hospitalRegNo" placeholder="Hospital registration number" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-list"></i> Hospital Type *</label>
+                                        <select class="form-control" id="hospitalType" required>
+                                            <option value="">Select Type</option>
+                                            <option value="government">Government Hospital</option>
+                                            <option value="private">Private Hospital</option>
+                                            <option value="charitable">Charitable/Trust Hospital</option>
+                                            <option value="specialty">Specialty Hospital</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-phone"></i> Primary Contact Number *</label>
+                                        <input type="tel" class="form-control" id="hospitalPhone" placeholder="+91 XXXXX XXXXX" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-phone-alt"></i> Emergency Contact Number *</label>
+                                        <input type="tel" class="form-control" id="hospitalEmergencyPhone" placeholder="+91 XXXXX XXXXX" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-envelope"></i> Official Email Address *</label>
+                                <input type="email" class="form-control" id="hospitalEmail" placeholder="contact@hospital.com" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-user-md"></i> Blood Bank In-charge Name *</label>
+                                <input type="text" class="form-control" id="bloodBankIncharge" placeholder="Dr. Name" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-phone"></i> In-charge Contact *</label>
+                                        <input type="tel" class="form-control" id="inchargePhone" placeholder="+91 XXXXX XXXXX" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-bed"></i> Number of Beds *</label>
+                                        <input type="number" class="form-control" id="hospitalBeds" placeholder="100" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-clock"></i> Opening Time *</label>
+                                        <input type="time" class="form-control" id="hospitalOpenTime" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label"><i class="fas fa-clock"></i> Closing Time *</label>
+                                        <input type="time" class="form-control" id="hospitalCloseTime" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-map-marker-alt"></i> Complete Address *</label>
+                                <textarea class="form-control" id="hospitalAddress" rows="3" placeholder="Enter complete hospital address" required></textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">City *</label>
+                                        <input type="text" class="form-control" id="hospitalCity" placeholder="City name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">State *</label>
+                                        <input type="text" class="form-control" id="hospitalState" placeholder="State name" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">PIN Code *</label>
+                                        <input type="text" class="form-control" id="hospitalPin" placeholder="110001" maxlength="6" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Latitude</label>
+                                        <input type="number" step="0.000001" class="form-control" id="hospitalLat" placeholder="28.6139">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Longitude</label>
+                                        <input type="number" step="0.000001" class="form-control" id="hospitalLng" placeholder="77.2090">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" class="btn btn-outline-secondary" onclick="getLocation('hospital')">
+                                    <i class="fas fa-crosshairs"></i> Use Current Location
+                                </button>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="hospitalTerms" required>
+                                    <label class="form-check-label" for="hospitalTerms">
+                                        I agree to the <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <button type="button" class="btn btn-hospital w-100 py-3" onclick="registerHospital()">
+                                <i class="fas fa-hospital-user"></i> Complete Registration
+                            </button>
+                        </form>
+                        
+                        <div class="loading-spinner" id="hospitalLoading">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Registering hospital...</p>
+                        </div>
+                        
+                        <div id="hospitalSuccess" class="success-message">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <h4>Hospital Registration Successful!</h4>
+                            <p>Thank you for joining our network. You can now post urgent blood requests and save lives.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="requirements-card">
+                        <h5><i class="fas fa-info-circle text-primary"></i> Hospital Requirements</h5>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-check text-success"></i> Valid government registration</li>
+                            <li><i class="fas fa-check text-success"></i> 24/7 emergency contact</li>
+                            <li><i class="fas fa-check text-success"></i> On-site blood storage facility</li>
+                            <li><i class="fas fa-check text-success"></i> Responsible personnel for requests</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="requestPage" class="page">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="feature-card">
+                        <button class="btn btn-back mb-3" onclick="showPage('homePage')">
+                            <i class="fas fa-arrow-left"></i> Back to Home
+                        </button>
+                        
+                        <div class="text-center mb-4">
+                            <i class="fas fa-hand-holding-medical fa-4x text-success mb-3"></i>
+                            <h2>Post a Blood Request</h2>
+                            <p class="text-muted">Fill out the details below to notify nearby donors instantly.</p>
+                        </div>
+                        
+                        <form id="requestForm" onsubmit="return false;">
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-hospital"></i> Hospital ID *</label>
+                                <input type="number" class="form-control" id="hospitalId" placeholder="Enter your registered Hospital ID" required>
+                                <small class="text-muted">You received this ID after registration. For testing, you can check the `hospitals` table in your database.</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-tint"></i> Blood Type *</label>
+                                <select class="form-control" id="requestBloodType" required>
+                                    <option value="">Select Blood Type</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-syringe"></i> Units Needed (in pints) *</label>
+                                <input type="number" class="form-control" id="unitsNeeded" placeholder="e.g., 2" min="1" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-exclamation-triangle"></i> Urgency Level *</label>
+                                <select class="form-control" id="urgency" required>
+                                    <option value="">Select Urgency</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="critical">Critical</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-comment-medical"></i> Additional Message</label>
+                                <textarea class="form-control" id="requestMessage" rows="3" placeholder="e.g., Patient is in critical condition and needs blood within 2 hours."></textarea>
+                            </div>
+
+                            <button type="button" class="btn btn-hospital w-100 py-3" onclick="postBloodRequest()">
+                                <i class="fas fa-bullhorn"></i> Post Request
+                            </button>
+                        </form>
+                        
+                        <div class="loading-spinner" id="requestLoading">
+                            <div class="spinner-border text-success" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Posting request...</p>
+                        </div>
+                        
+                        <div id="requestSuccess" class="success-message">
+                            <i class="fas fa-check-circle fa-2x mb-3"></i>
+                            <h4>Request Posted!</h4>
+                            <p>Nearby donors have been notified. You will get a notification as soon as they respond.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="requestResultsPage" class="page">
+            <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <div class="feature-card">
+                        <button class="btn btn-back mb-3" onclick="showPage('homePage')">
+                            <i class="fas fa-arrow-left"></i> Back to Home
+                        </button>
+                        
+                        <div class="text-center mb-4">
+                            <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                            <h2 id="resultsHeader"></h2>
+                            <p class="text-muted" id="resultsSubheader"></p>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4 class="mb-3"><i class="fas fa-check-circle text-success me-2"></i> Donors Notified</h4>
+                                <ul class="list-group" id="selectedDonorsList">
+                                    </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h4 class="mb-3"><i class="fas fa-users text-info me-2"></i> Other Eligible Donors</h4>
+                                <ul class="list-group" id="notSelectedDonorsList">
+                                    </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <button class="btn btn-hospital" onclick="showPage('requestPage')">
+                                <i class="fas fa-plus"></i> Post Another Request
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function selectBloodType(element, type) {
+            document.querySelectorAll('.blood-type-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            document.getElementById('donorBloodType').value = type;
+        }
+
+        function getLocation(userType) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        if (userType === 'donor') {
+                            document.getElementById('donorLat').value = lat;
+                            document.getElementById('donorLng').value = lng;
+                        } else if (userType === 'hospital') {
+                            document.getElementById('hospitalLat').value = lat;
+                            document.getElementById('hospitalLng').value = lng;
+                        }
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert("Geolocation is not supported by this browser or permission was denied.");
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        async function registerDonor() {
+            const form = document.getElementById('donorForm');
+            if (form.checkValidity()) {
+                document.getElementById('donorLoading').style.display = 'block';
+                
+                const donorData = {
+                    name: document.getElementById('donorName').value,
+                    phone: document.getElementById('donorPhone').value,
+                    email: document.getElementById('donorEmail').value,
+                    dob: document.getElementById('donorDob').value,
+                    aadhar: document.getElementById('donorAadhar').value,
+                    weight: parseFloat(document.getElementById('donorWeight').value),
+                    blood_type: document.getElementById('donorBloodType').value,
+                    address: document.getElementById('donorAddress').value,
+                    city: document.getElementById('donorCity').value,
+                    state: document.getElementById('donorState').value,
+                    pincode: document.getElementById('donorPin').value,
+                    latitude: parseFloat(document.getElementById('donorLat').value) || 0,
+                    longitude: parseFloat(document.getElementById('donorLng').value) || 0,
+                    last_donation: document.getElementById('lastDonation').value || null,
+                    receive_notifications: document.getElementById('donorNotifications').checked
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/register/donor`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(donorData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        console.log('Success:', data);
+                        form.style.display = 'none';
+                        document.getElementById('donorLoading').style.display = 'none';
+                        document.getElementById('donorSuccess').style.display = 'block';
+                    } else {
+                        console.error('Error:', data.detail);
+                        document.getElementById('donorLoading').style.display = 'none';
+                        alert(`Registration failed: ${data.detail}`);
+                    }
+                } catch (error) {
+                    console.error('Network Error:', error);
+                    document.getElementById('donorLoading').style.display = 'none';
+                    alert('An error occurred. Please check if the backend server is running and the URL is correct.');
+                }
+            } else {
+                form.reportValidity();
+            }
+        }
+
+        async function registerHospital() {
+            const form = document.getElementById('hospitalForm');
+            if (form.checkValidity()) {
+                document.getElementById('hospitalLoading').style.display = 'block';
+                
+                const hospitalData = {
+                    hospitalName: document.getElementById('hospitalName').value,
+                    hospitalRegNo: document.getElementById('hospitalRegNo').value,
+                    hospitalType: document.getElementById('hospitalType').value,
+                    hospitalPhone: document.getElementById('hospitalPhone').value,
+                    hospitalEmergencyPhone: document.getElementById('hospitalEmergencyPhone').value,
+                    hospitalEmail: document.getElementById('hospitalEmail').value,
+                    bloodBankIncharge: document.getElementById('bloodBankIncharge').value,
+                    inchargePhone: document.getElementById('inchargePhone').value,
+                    hospitalBeds: parseInt(document.getElementById('hospitalBeds').value),
+                    hospitalAddress: document.getElementById('hospitalAddress').value,
+                    hospitalCity: document.getElementById('hospitalCity').value,
+                    hospitalState: document.getElementById('hospitalState').value,
+                    hospitalPin: document.getElementById('hospitalPin').value,
+                    hospitalLat: parseFloat(document.getElementById('hospitalLat').value) || 0,
+                    hospitalLng: parseFloat(document.getElementById('hospitalLng').value) || 0,
+                    hospitalOpenTime: document.getElementById('hospitalOpenTime').value,
+                    hospitalCloseTime: document.getElementById('hospitalCloseTime').value,
+                    services: []
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/register/hospital`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(hospitalData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        console.log('Success:', data);
+                        form.style.display = 'none';
+                        document.getElementById('hospitalLoading').style.display = 'none';
+                        document.getElementById('hospitalSuccess').style.display = 'block';
+                    } else {
+                        console.error('Error:', data.detail);
+                        document.getElementById('hospitalLoading').style.display = 'none';
+                        alert(`Registration failed: ${data.detail}`);
+                    }
+                } catch (error) {
+                    console.error('Network Error:', error);
+                    document.getElementById('hospitalLoading').style.display = 'none';
+                    alert('An error occurred. Please check if the backend server is running and the URL is correct.');
+                }
+            } else {
+                form.reportValidity();
+            }
+        }
+
+        async function postBloodRequest() {
+            const form = document.getElementById('requestForm');
+            if (form.checkValidity()) {
+                document.getElementById('requestLoading').style.display = 'block';
+                
+                const requestData = {
+                    hospital_id: parseInt(document.getElementById('hospitalId').value),
+                    blood_type: document.getElementById('requestBloodType').value,
+                    units_needed: parseInt(document.getElementById('unitsNeeded').value),
+                    urgency: document.getElementById('urgency').value,
+                    message: document.getElementById('requestMessage').value || null
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/request/blood`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestData)
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        console.log('Success:', data);
+                        // Redirect to the new results page with data in the URL
+                        const url = `result.html?data=${encodeURIComponent(JSON.stringify(data))}`;
+                        window.location.href = url;
+                    } else {
+                        console.error('Error:', data.detail);
+                        document.getElementById('requestLoading').style.display = 'none';
+                        alert(`Request failed: ${data.detail}`);
+                    }
+                } catch (error) {
+                    console.error('Network Error:', error);
+                    document.getElementById('requestLoading').style.display = 'none';
+                    alert('An error occurred. Please check if the backend server is running.');
+                }
+            } else {
+                form.reportValidity();
+            }
+        }
+
+        function renderRequestResults(data) {
+            // This function is no longer needed in index.html, as it's now in results.html
+        }
+    </script>
+</body>
+</html>

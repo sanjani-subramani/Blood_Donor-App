@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Request Results</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --blood-red: #dc143c;
+            --hospital-blue: #2c5aa0;
+            --success-green: #28a745;
+            --not-selected-red: #dc3545;
+        }
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+        .container {
+            padding: 2rem 0;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+        .btn-back {
+            background: linear-gradient(45deg, #6c757d, #9ca3af);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-back:hover {
+            transform: scale(1.05);
+            color: white;
+        }
+        .donor-list-item {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .notified-donor {
+            border-left: 4px solid var(--success-green);
+        }
+        .not-selected-donor {
+            border-left: 4px solid var(--not-selected-red);
+        }
+        .results-header {
+            color: var(--hospital-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="feature-card">
+                    <a href="index.html" class="btn btn-back mb-3">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                    
+                    <div class="text-center mb-4">
+                        <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                        <h2 class="results-header">Request Posted Successfully!</h2>
+                        <p class="text-muted" id="resultsSubheader">Loading results...</p>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h4 class="mb-3"><i class="fas fa-check-circle text-success me-2"></i> Donors Notified</h4>
+                            <div id="selectedDonorsList">
+                                </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="mb-3"><i class="fas fa-times-circle text-danger me-2"></i> Other Eligible Donors (Not Selected)</h4>
+                            <div id="notSelectedDonorsList">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const dataString = params.get('data');
+            
+            if (dataString) {
+                const data = JSON.parse(decodeURIComponent(dataString));
+                renderRequestResults(data);
+            } else {
+                document.getElementById('resultsSubheader').innerText = 'No results found.';
+            }
+        });
+
+        function renderRequestResults(data) {
+            document.getElementById('resultsSubheader').innerHTML = `A total of <strong>${data.notified_donors.length}</strong> donors were notified based on priority. The remaining ${data.not_selected_donors.length} donors were placed on a waiting list.`;
+
+            const selectedDonorsList = document.getElementById('selectedDonorsList');
+            selectedDonorsList.innerHTML = '';
+            if (data.notified_donors.length > 0) {
+                data.notified_donors.forEach(donorName => {
+                    selectedDonorsList.innerHTML += `
+                        <div class="donor-list-item notified-donor mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <strong>${donorName}</strong>
+                            <small class="text-muted d-block">Selected for notification</small>
+                        </div>`;
+                });
+            } else {
+                selectedDonorsList.innerHTML = `
+                    <div class="donor-list-item">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        No donors were selected for notification.
+                    </div>`;
+            }
+
+            const notSelectedDonorsList = document.getElementById('notSelectedDonorsList');
+            notSelectedDonorsList.innerHTML = '';
+            if (data.not_selected_donors.length > 0) {
+                data.not_selected_donors.forEach(donorName => {
+                    notSelectedDonorsList.innerHTML += `
+                        <div class="donor-list-item not-selected-donor mb-2">
+                            <i class="fas fa-times-circle text-danger me-2"></i>
+                            <span>${donorName}</span>
+                            <small class="text-muted d-block">Not selected for this request</small>
+                        </div>`;
+                });
+            } else {
+                notSelectedDonorsList.innerHTML = `
+                    <div class="donor-list-item">
+                        <i class="fas fa-info-circle text-info me-2"></i>
+                        No other eligible donors were found.
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>

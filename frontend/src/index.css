@@ -1,0 +1,207 @@
+        :root {
+          --blood-red: #dc143c;
+          --hospital-blue: #2c5aa0;
+          --success-green: #28a745;
+          --not-selected-red: #dc3545;
+        }
+
+        body {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          min-height: 100vh;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .page {
+          display: none;
+        }
+
+        .page.active {
+          display: block;
+        }
+
+        .hero-section {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(10px);
+          border-radius: 20px;
+          padding: 3rem;
+          margin: 2rem 0;
+          text-align: center;
+          color: white;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card {
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 15px;
+          padding: 2rem;
+          margin: 1rem 0;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          border: none;
+        }
+
+        .feature-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .donor-card {
+          border-left: 5px solid var(--blood-red);
+        }
+
+        .hospital-card {
+          border-left: 5px solid var(--hospital-blue);
+        }
+
+        .btn-donor {
+          background: linear-gradient(45deg, #dc143c, #ff6b6b);
+          color: white;
+          border: none;
+          padding: 12px 30px;
+          border-radius: 25px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+        }
+
+        .btn-donor:hover {
+          transform: scale(1.05);
+          box-shadow: 0 5px 15px rgba(220, 20, 60, 0.4);
+          color: white;
+        }
+
+        .btn-hospital {
+          background: linear-gradient(45deg, #2c5aa0, #5a9fd4);
+          color: white;
+          border: none;
+          padding: 12px 30px;
+          border-radius: 25px;
+          font-weight: 600;
+          transition: all 0.3s ease;
+        }
+
+        .btn-hospital:hover {
+          transform: scale(1.05);
+          box-shadow: 0 5px 15px rgba(44, 90, 160, 0.4);
+          color: white;
+        }
+
+        .btn-back {
+          background: linear-gradient(45deg, #6c757d, #9ca3af);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 20px;
+          font-weight: 500;
+          transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+          transform: scale(1.05);
+          color: white;
+        }
+
+        .form-control {
+          border-radius: 10px;
+          border: 2px solid #e9ecef;
+          padding: 12px 15px;
+          transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+          border-color: var(--blood-red);
+          box-shadow: 0 0 0 0.2rem rgba(220, 20, 60, 0.25);
+        }
+
+        .pulse {
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+          }
+
+          50% {
+            transform: scale(1.05);
+          }
+
+          100% {
+            transform: scale(1);
+          }
+        }
+
+        .stats-card {
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 10px;
+          padding: 1.5rem;
+          text-align: center;
+          margin: 1rem 0;
+        }
+
+        .navbar {
+          background: rgba(255, 255, 255, 0.1) !important;
+          backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+          color: white !important;
+          font-weight: bold;
+          font-size: 1.5rem;
+        }
+
+        .info-section {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 15px;
+          padding: 2rem;
+          margin: 2rem 0;
+          color: white;
+        }
+
+        .requirements-card {
+          background: rgba(255, 255, 255, 0.95);
+          border-radius: 15px;
+          padding: 1.5rem;
+          margin: 1rem 0;
+        }
+
+        .blood-type-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+          gap: 10px;
+          margin: 15px 0;
+        }
+
+        .blood-type-option {
+          text-align: center;
+          padding: 15px;
+          border: 2px solid #e9ecef;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          background: white;
+        }
+
+        .blood-type-option:hover {
+          border-color: var(--blood-red);
+          background: rgba(220, 20, 60, 0.1);
+        }
+
+        .blood-type-option.selected {
+          border-color: var(--blood-red);
+          background: var(--blood-red);
+          color: white;
+        }
+
+        .success-message {
+          background: linear-gradient(45deg, var(--success-green), #34ce57);
+          color: white;
+          padding: 20px;
+          border-radius: 15px;
+          text-align: center;
+          margin: 20px 0;
+        }
+
+        .loading-spinner {
+          text-align: center;
+          margin: 20px 0;
+        }
