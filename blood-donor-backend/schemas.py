@@ -15,12 +15,14 @@ class DonorBase(BaseModel):
     latitude: float
     longitude: float
     last_donation_date: str
+    is_available: bool = True
 
 class DonorCreate(DonorBase):
     pass
 
 class Donor(DonorBase):
     id: int
+    distance: Optional[float] = None
 
     class Config:
         from_attributes = True

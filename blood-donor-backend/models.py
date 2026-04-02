@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from database import Base
 import datetime
@@ -20,6 +20,8 @@ class Donor(Base):
     latitude = Column(Float)
     longitude = Column(Float)
     last_donation_date = Column(String)
+    is_available = Column(Boolean, default=True)
+    last_notified = Column(DateTime, nullable=True)
 
 class Hospital(Base):
     __tablename__ = "hospitals"

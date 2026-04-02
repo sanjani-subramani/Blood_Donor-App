@@ -77,90 +77,107 @@ const Home = () => {
     }, []);
 
     return (
-        <div className="container">
+        <div className="container py-5">
             {/* Hero Section */}
-            <div className="hero-section">
-                <h1 className="display-4 mb-4">
-                    <i className="fas fa-hand-holding-heart pulse me-2"></i> Save Lives, One Drop at a Time
-                </h1>
-                <p className="lead">Connect donors with hospitals instantly when blood is needed most</p>
-                <p className="mt-4">Join thousands of heroes who are making a difference in their community</p>
+            <div className="hero-section text-center py-5 mb-5 rounded-5 shadow-lg animate__animated animate__fadeIn" 
+                 style={{ background: 'linear-gradient(135deg, rgba(220, 53, 69, 0.9), rgba(0, 123, 255, 0.8))', backdropFilter: 'blur(10px)', color: 'white' }}>
+                <div className="py-4">
+                    <h1 className="display-3 fw-bold mb-3">
+                        <i className="fas fa-heartbeat pulse me-3"></i>BloodFlow
+                    </h1>
+                    <p className="lead fs-3 mb-0">Connecting Life-Savers with Those in Need</p>
+                    <p className="opacity-75">A near-instant emergency alert system for blood donors and hospitals.</p>
+                    <div className="mt-4">
+                        <button onClick={() => navigate('/donors-list')} className="btn btn-light btn-lg rounded-pill px-4 shadow-sm fw-bold text-primary me-3">
+                            <i className="fas fa-search me-2"></i> Find a Donor
+                        </button>
+                        <button onClick={() => navigate('/request')} className="btn btn-outline-light btn-lg rounded-pill px-4 fw-bold">
+                            <i className="fas fa-bullhorn me-2"></i> Post Request
+                        </button>
+                    </div>
+                </div>
             </div>
 
             {/* Action Cards */}
-            <div className="row">
-                <div className="col-lg-4 mb-4">
-                    <div className="feature-card donor-card h-100">
-                        <div className="text-center mb-3">
-                            <i className="fas fa-user-plus fa-3x text-danger"></i>
+            <div className="row g-4 mb-5">
+                <div className="col-lg-4">
+                    <div className="feature-card h-100 p-4 border-0 shadow-sm transition-hover">
+                        <div className="text-center mb-4">
+                            <div className="icon-badge bg-danger-subtle rounded-circle d-inline-flex p-4">
+                                <i className="fas fa-user-plus fa-3x text-danger"></i>
+                            </div>
                         </div>
-                        <h3 className="text-center">Be a Life Saver</h3>
-                        <p className="text-center">Register as a blood donor and get notified when hospitals in your area need your blood type.</p>
+                        <h3 className="text-center fw-bold">Be a Life Saver</h3>
+                        <p className="text-center text-muted">Join our network of thousands of heroes. Get notified when hospitals nearby need your blood type.</p>
+                        <hr className="my-4 opacity-25" />
                         <button
                             onClick={() => navigate('/donor')}
-                            className="btn btn-donor w-100 mt-3 d-flex align-items-center justify-content-center"
+                            className="btn btn-danger w-100 py-3 rounded-pill fw-bold shadow-sm"
                         >
-                            <i className="fas fa-hand-holding-heart me-2"></i> Become a Donor
+                            <i className="fas fa-hand-holding-heart me-2"></i> Join as Donor
                         </button>
                     </div>
                 </div>
 
-                <div className="col-lg-4 mb-4">
-                    <div
-                        className="feature-card hospital-card h-100" style={{ borderLeft: '5px solid var(--hospital-blue)' }}
-                    >
-
-                        <div className="text-center mb-3">
-                            <i className="fas fa-hospital fa-3x text-primary"></i>
+                <div className="col-lg-4">
+                    <div className="feature-card h-100 p-4 border-0 shadow-sm transition-hover border-top border-primary border-5">
+                        <div className="text-center mb-4">
+                            <div className="icon-badge bg-primary-subtle rounded-circle d-inline-flex p-4">
+                                <i className="fas fa-hospital fa-3x text-primary"></i>
+                            </div>
                         </div>
-                        <h3 className="text-center text-black">Hospital Registration</h3>
-                        <p className="text-center">Register your hospital to get access to our network of urgent blood donors.</p>
+                        <h3 className="text-center fw-bold">Hospital Portal</h3>
+                        <p className="text-center text-muted">Register your facility to access our massive donor base and automate emergency notifications.</p>
+                        <hr className="my-4 opacity-25" />
                         <button
                             onClick={() => navigate('/hospital')}
-                            className="btn btn-hospital w-100 mt-3 d-flex align-items-center justify-content-center"
+                            className="btn btn-primary w-100 py-3 rounded-pill fw-bold"
                         >
-                            <i className="fas fa-hand-holding-heart me-2"></i> Hospital Registration
+                            <i className="fas fa-plus-circle me-2"></i> Facility Signup
                         </button>
                     </div>
                 </div>
 
-                <div className="col-lg-4 mb-4">
-                    <div className="feature-card hospital-card h-100 text-white"
-                    >
-                        <div className="text-center mb-3">
-                            <i className="fas fa-hand-holding-medical fa-3x text-success"></i>
+                <div className="col-lg-4">
+                    <div className="feature-card h-100 p-4 border-0 shadow-sm transition-hover">
+                        <div className="text-center mb-4">
+                            <div className="icon-badge bg-success-subtle rounded-circle d-inline-flex p-4">
+                                <i className="fas fa-history fa-3x text-success"></i>
+                            </div>
                         </div>
-                        <h3 className="text-center text-black">Post a Blood Request</h3>
-                        <p className="text-center text-black">Already registered? Post an urgent blood request to notify nearby donors instantly.</p>
+                        <h3 className="text-center fw-bold">Recent History</h3>
+                        <p className="text-center text-muted">Track global emergency requests and see how our community is making a difference every day.</p>
+                        <hr className="my-4 opacity-25" />
                         <button
-                            onClick={() => navigate('/request')}
-                            className="btn btn-success w-100 mt-3 d-flex align-items-center justify-content-center"
-                            style={{ background: 'linear-gradient(45deg, #28a745, #34ce57)', borderRadius: '25px', border: 'none', fontWeight: 'bold', padding: '12px', color: 'white' }}
+                            onClick={() => navigate('/history')}
+                            className="btn btn-success w-100 py-3 rounded-pill fw-bold shadow-sm"
                         >
-                            <i className="fas fa-plus me-2"></i> Post a Request
+                            <i className="fas fa-list-ul me-2"></i> View History
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* Stats Row */}
-            <div className="row mt-4">
-                <div className="col-md-3">
-                    <StatCard value={stats.donors} label="Registered Donors" className="text-danger" />
-                </div>
-                <div className="col-md-3">
-                    <StatCard value={stats.hospitals} label="Partner Hospitals" className="text-primary" />
-                </div>
-                <div className="col-md-3">
-                    <div className="stats-card">
-                        <h2 className="text-success">24/7</h2>
-                        <p className="mb-0">Alert System</p>
+            {/* Stats Section */}
+            <div className="bg-light rounded-5 p-5 mb-5 shadow-inner">
+                <div className="row text-center g-4">
+                    <div className="col-md-3">
+                        <StatCard value={stats.donors} label="Registered Donors" className="text-danger fw-bold display-5" />
                     </div>
-                </div>
-                <div className="col-md-3">
-                    <div className="stats-card" style={{ color: '#854d0e' }}>
-                        <h2 className="text-warning">&lt; 5min</h2>
-                        <p className="mb-0">Response Time</p>
+                    <div className="col-md-3">
+                        <StatCard value={stats.hospitals} label="Partner Hospitals" className="text-primary fw-bold display-5" />
+                    </div>
+                    <div className="col-md-3">
+                        <div className="stats-card p-3">
+                            <h2 className="text-success fw-bold display-5">24/7</h2>
+                            <p className="mb-0 text-muted">Ready for Alert</p>
+                        </div>
+                    </div>
+                    <div className="col-md-3">
+                        <div className="stats-card p-3">
+                            <h2 className="text-warning fw-bold display-5">&lt; 5m</h2>
+                            <p className="mb-0 text-muted">Avg. Response</p>
+                        </div>
                     </div>
                 </div>
             </div>

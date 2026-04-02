@@ -54,76 +54,88 @@ const BloodRequest = () => {
     };
 
     if (view === 'results' && result) {
+        // Updated: notifiedCount should be the number of available matched donors
+        const notifiedCount = result.matched_donors.filter(d => d.is_available).length;
+        
         return (
-            <div className="registration-page">
+            <div className="registration-page container py-5">
                 <div className="row justify-content-center">
                     <div className="col-md-10">
-                        <div className="feature-card">
-                            <Link to="/" className="btn btn-back mb-3 d-inline-flex align-items-center">
-                                <i className="fas fa-arrow-left me-2"></i> Back to Home
+                        <div className="feature-card p-4 p-md-5 animate__animated animate__fadeIn">
+                            <Link to="/" className="btn btn-back mb-4 d-inline-flex align-items-center">
+                                <i className="fas fa-arrow-left me-2"></i> Back to Dashboard
                             </Link>
 
-                            <div className="text-center mb-4">
-                                <i className="fas fa-check-circle fa-4x text-success mb-3"></i>
-                                <h2 className="text-success">Request Posted Successfully!</h2>
-                                <p className="text-muted">
-                                    A total of <strong>{result.matched_donors.length}</strong> donors were matched based on priority.
-                                </p>
+                            <div className="text-center mb-5">
+                                <div className="mb-3">
+                                    <i className="fas fa-check-circle fa-4x text-success shadow-sm rounded-circle"></i>
+                                </div>
+                                <h2 className="text-success fw-bold">Request Posted Successfully!</h2>
+                                <div className="alert alert-info d-inline-block px-4 py-2 rounded-pill mt-2 border-0 shadow-sm">
+                                    <i className="fas fa-paper-plane me-2"></i>
+                                    <strong>{notifiedCount}</strong> urgent notifications sent to available nearby donors.
+                                </div>
                             </div>
 
-                            <hr />
-
-                            <div className="row">
+                            <div className="row g-4">
                                 <div className="col-md-6 border-end">
-                                    <h4 className="mb-4"><i className="fas fa-bell text-success me-2"></i> Notified Donors</h4>
-                                    {result.matched_donors.slice(0, 3).length > 0 ? (
-                                        result.matched_donors.slice(0, 3).map((donor, idx) => {
-                                            console.log("Rendering Match:", donor);
-                                            return (
-                                                <div key={idx} className="donor-list-item notified-donor">
-                                                    <div className="donor-icon">
-                                                        <i className="fas fa-user-check fa-2x text-success"></i>
-                                                    </div>
-                                                    <div className="donor-info">
-                                                        <h5>{donor.name}</h5>
-                                                        <p><i className="fas fa-phone-alt me-1"></i> {donor.phone}</p>
-                                                        <p><i className="fas fa-tint me-1"></i> {donor.blood_group}</p>
-                                                    </div>
+                                    <h5 className="mb-4 text-secondary d-flex align-items-center">
+                                        <i className="fas fa-satellite-dish text-success me-2"></i> 
+                                        Ranked Matches (Priority)
+                                    </h5>
+                                    {result.matched_donors.length > 0 ? (
+                                        result.matched_donors.map((donor, idx) => (
+                                            <div key={idx} className={`donor-list-item p-3 mb-3 border rounded-3 shadow-sm bg-white d-flex align-items-center ${!donor.is_available ? 'opacity-50' : 'notified-donor'}`}>
+                                                <div className="donor-icon me-3 bg-light rounded-circle p-3">
+                                                    <i className={`fas ${donor.is_available ? 'fa-user-check text-success' : 'fa-user-clock text-warning'} fa-lg`}></i>
                                                 </div>
-                                            );
-                                        })
-                                    ) : (
-                                        <p className="text-muted">No immediate donors matched the criteria.</p>
-                                    )}
-                                </div>
-                                <div className="col-md-6">
-                                    <h4 className="mb-4"><i className="fas fa-users text-info me-2"></i> Waiting List</h4>
-                                    {result.matched_donors.slice(3).length > 0 ? (
-                                        result.matched_donors.slice(3).map((donor, idx) => (
-                                            <div key={idx} className="donor-list-item not-selected-donor">
-                                                <div className="donor-icon">
-                                                    <i className="fas fa-user-clock fa-2x text-muted"></i>
-                                                </div>
-                                                <div className="donor-info">
-                                                    <h5>{donor.name}</h5>
-                                                    <p><i className="fas fa-phone-alt me-1"></i> {donor.phone}</p>
-                                                    <p><i className="fas fa-tint me-1"></i> {donor.blood_group}</p>
-                                                    <small className="text-muted">Will be notified if units are still needed.</small>
+                                                <div className="donor-info flex-grow-1">
+                                                    <h6 className="mb-1 fw-bold">{donor.name}</h6>
+                                                    {donor.is_available ? (
+                                                        <div className="small text-muted mb-1">
+                                                            <i className="fas fa-phone-alt me-1 text-success"></i> {donor.phone}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="small text-warning mb-1">
+                                                            <i className="fas fa-clock me-1"></i> Busy / Unavailable
+                                                        </div>
+                                                    )}
+                                                    <span className="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 small me-2">
+                                                        {donor.blood_group}
+                                                    </span>
+                                                    {donor.distance !== undefined && (
+                                                        <span className="badge bg-primary-subtle text-primary rounded-pill px-2 py-1 small">
+                                                            <i className="fas fa-map-marker-alt me-1"></i> {donor.distance} km
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-muted">No other eligible donors found within 10km.</p>
+                                        <div className="text-center py-4 bg-light rounded-3">
+                                            <p className="text-muted mb-0 small">No donors matched within searching radius.</p>
+                                        </div>
                                     )}
+                                </div>
+                                <div className="col-md-6">
+                                    <div className="p-4 bg-light rounded-4 h-100 border">
+                                        <h5 className="text-secondary mb-3"><i className="fas fa-info-circle me-2"></i> How Matching Works</h5>
+                                        <ul className="small text-muted ps-3">
+                                            <li className="mb-2"><strong>Smart Ranking</strong>: Pre-sorts available donors within reach, followed by those nearby but currently unavailable.</li>
+                                            <li className="mb-2"><strong>Emergency Handling</strong>: Radius automatically expands to 20km for critical requests.</li>
+                                            <li className="mb-2"><strong>Compatibility</strong>: Includes universal donors (like O-) and other compatible matches if exact types are scarce.</li>
+                                            <li><strong>Fairness</strong>: Uses a 24-hour cooldown after notification to prevent volunteer fatigue.</li>
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="text-center mt-5">
-                                <button className="btn btn-hospital me-3" onClick={() => setView('form')}>
-                                    <i className="fas fa-plus me-2"></i> Post Another Request
+                            <div className="text-center mt-5 pt-4 border-top">
+                                <button className="btn btn-danger btn-lg px-4 me-3 rounded-pill shadow-sm" onClick={() => { setView('form'); setResult(null); }}>
+                                    <i className="fas fa-plus me-2"></i> New Request
                                 </button>
-                                <Link to="/" className="btn btn-outline-secondary">
-                                    <i className="fas fa-home me-2"></i> Return Home
+                                <Link to="/" className="btn btn-outline-secondary btn-lg px-4 rounded-pill">
+                                    <i className="fas fa-home me-2"></i> Home
                                 </Link>
                             </div>
                         </div>

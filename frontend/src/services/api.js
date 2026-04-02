@@ -29,4 +29,19 @@ export const getStats = async () => {
   return response.data;
 };
 
+export const fetchRequestHistory = async () => {
+  const response = await api.get('/history/requests');
+  return response.data;
+};
+
+export const fetchDonors = async (bloodGroup = '', availableOnly = false) => {
+  const response = await api.get('/donors', {
+    params: {
+      blood_group: bloodGroup,
+      available_only: availableOnly
+    }
+  });
+  return response.data;
+};
+
 export default api;

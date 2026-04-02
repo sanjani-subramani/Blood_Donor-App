@@ -1,0 +1,18 @@
+--- 1. Register QA Hospital ---
+Registered QA Hospital ID: 17
+
+--- 2. Register QA Donors ---
+Registered QA Near A+
+Registered QA Far Critical A+
+Registered QA Universal Donor O-
+
+--- 3. Testing Standard Request (10km, A+, High) ---
+Standard request matched 2 donors.
+ - QA Near A+ (1.55 km)
+ - QA Universal Donor O- (3.11 km)
+
+--- 4. Testing Critical Request (20km, A+, Critical) ---
+Critical request matched 0 donors.
+
+--- 5. Testing Cooldown (Immediate Repeat) ---
+Cooldown check matched 0 donors. (Expected fewer or 0)
