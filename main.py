@@ -8,6 +8,23 @@ import hashlib
 from datetime import datetime, timedelta
 import math
 import os
+from twilio.rest import Client
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
+# Initialize Twilio Client
+try:
+    if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
+        twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+    else:
+        twilio_client = None
+        print("[WARNING] Twilio credentials missing. SMS notifications will be simulated.")
+except Exception as e:
+    twilio_client = None
+    print(f"[ERROR] Failed to initialize Twilio client: {e}")
 
 app = FastAPI(title="Blood Donor Alert Platform", version="1.0.0")
 
@@ -184,10 +201,32 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 
     return R * c
 
-# This function sends a simulated message to the terminal.
+# This function sends a message via Twilio or simulates it if credentials are missing
 def send_sms(phone, message):
-    print(f"SMS would be sent to {phone}: {message}")
-    return True
+    # Ensure phone number is in E.164 format (e.g., +919876543210)
+    formatted_phone = phone.strip()
+    if not formatted_phone.startswith('+'):
+        # Defaulting to +91 if no country code is provided, as per requirements
+        formatted_phone = f"+91{formatted_phone}"
+    
+    # Log to console for visibility
+    print(f"[SMS LOG] Sending to {formatted_phone}: {message}")
+    
+    if twilio_client:
+        try:
+            twilio_client.messages.create(
+                body=message,
+                from_=TWILIO_PHONE_NUMBER,
+                to=formatted_phone
+            )
+            print(f"[SMS SUCCESS] Message sent to {formatted_phone}")
+            return True
+        except Exception as e:
+            print(f"[SMS ERROR] Failed to send SMS to {formatted_phone}: {e}")
+            return False
+    else:
+        print(f"[SMS SIMULATION] SMS would be sent to {formatted_phone}: {message}")
+        return True
 
 # API Endpoints
 @app.get("/", response_class=HTMLResponse)
@@ -295,7 +334,13 @@ async def create_blood_request(request: BloodRequest):
             hospital['latitude'], hospital['longitude'],
             donor['latitude'], donor['longitude']
         )
-        donors_with_distance.append({'donor_id': donor['id'], 'distance': distance, 'phone': donor['phone'], 'name': donor['name']})
+        donors_with_distance.append({
+            'donor_id': donor['id'],
+            'distance': distance,
+            'phone': donor['phone'],
+            'name': donor['name'],
+            'blood_group': donor['blood_type']
+        })
     
     donors_with_distance.sort(key=lambda x: x['distance'])
     
@@ -325,10 +370,22 @@ async def create_blood_request(request: BloodRequest):
     conn.close()
     
     return {
-        "message": f"Blood request created successfully. {len(top_donors)} donors notified.",
-        "request_id": request_id,
-        "notified_donors": [d['name'] for d in top_donors],
-        "not_selected_donors": [d['name'] for d in all_other_donors]
+        "request": {
+            "id": request_id,
+            "hospital_id": request.hospital_id,
+            "blood_type": request.blood_type,
+            "units_required": request.units_needed,
+            "urgency_level": request.urgency,
+            "message": request.message
+        },
+        "matched_donors": [
+            {
+                "id": d['donor_id'],
+                "name": d['name'],
+                "phone": d['phone'],
+                "blood_group": d['blood_group']
+            } for d in (top_donors + all_other_donors)
+        ]
     }
 
 @app.post("/respond")
@@ -392,6 +449,44 @@ async def hospital_dashboard(hospital_id: int):
     
     conn.close()
     return {"hospital_name": hospital_data['name'], "requests": response_data}
+
+@app.get("/stats")
+async def get_stats():
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    cursor.execute('SELECT COUNT(*) as count FROM donors')
+    donor_count = cursor.fetchone()['count']
+    
+    cursor.execute('SELECT COUNT(*) as count FROM hospitals')
+    hospital_count = cursor.fetchone()['count']
+    
+    conn.close()
+    return {
+        "donors": donor_count,
+        "hospitals": hospital_count
+    }
+
+@app.get("/news")
+async def get_news():
+    # Placeholder news or real data if available
+    # For now, let's return some mock data consistent with what the frontend expects
+    return [
+        {
+            "id": 1,
+            "title": "City Hall Blood Drive",
+            "date": "Sep 10, 2025",
+            "location": "New Delhi",
+            "description": "Donate blood at the annual city hall drive. Every donation saves up to 3 lives!"
+        },
+        {
+            "id": 2,
+            "title": "Red Cross Mobile Donation Camp",
+            "date": "Sep 18, 2025",
+            "location": "Sector 5, Haryana",
+            "description": "The Red Cross is hosting a mobile camp in Sector 5. All blood types are needed!"
+        }
+    ]
 
 if __name__ == "__main__":
     import uvicorn

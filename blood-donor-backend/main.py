@@ -2,7 +2,62 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
+import os
 import math
+from dotenv import load_dotenv
+from twilio.rest import Client
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Twilio Configuration
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID')
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN')
+TWILIO_PHONE_NUMBER = os.getenv('TWILIO_PHONE_NUMBER')
+
+# Initialize Twilio Client
+def is_valid_credential(cred):
+    return cred and not cred.startswith("your_")
+
+print("\n--- Twilio Configuration Check ---")
+valid_sid = is_valid_credential(TWILIO_ACCOUNT_SID)
+valid_token = is_valid_credential(TWILIO_AUTH_TOKEN)
+valid_phone = is_valid_credential(TWILIO_PHONE_NUMBER)
+
+if TWILIO_ACCOUNT_SID:
+    if valid_sid:
+        print(f"[INFO] TWILIO_ACCOUNT_SID: {TWILIO_ACCOUNT_SID[:4]}******")
+    else:
+        print("[ERROR] TWILIO_ACCOUNT_SID is a placeholder!")
+else:
+    print("[ERROR] TWILIO_ACCOUNT_SID is missing!")
+
+if not valid_token:
+    if TWILIO_AUTH_TOKEN and TWILIO_AUTH_TOKEN.startswith("your_"):
+        print("[ERROR] TWILIO_AUTH_TOKEN is a placeholder!")
+    else:
+        print("[ERROR] TWILIO_AUTH_TOKEN is missing!")
+
+if TWILIO_PHONE_NUMBER:
+    if valid_phone:
+        print(f"[INFO] TWILIO_PHONE_NUMBER: {TWILIO_PHONE_NUMBER}")
+    else:
+        print("[ERROR] TWILIO_PHONE_NUMBER is a placeholder!")
+else:
+    print("[ERROR] TWILIO_PHONE_NUMBER is missing!")
+
+try:
+    if valid_sid and valid_token and valid_phone:
+        twilio_client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+        print("[SUCCESS] Twilio client initialized with real credentials.")
+    else:
+        twilio_client = None
+        print("[ERROR] Invalid Twilio credentials detected. Automatic SMS will be skipped.")
+except Exception as e:
+    twilio_client = None
+    print(f"[ERROR] Failed to initialize Twilio client: {e}")
+print("----------------------------------\n")
+print("----------------------------------\n")
 
 import models
 import schemas
@@ -104,7 +159,31 @@ def create_blood_request(request: schemas.BloodRequestCreate, db: Session = Depe
             if dist <= 10.0:
                 nearby_donors.append(donor)
 
-    # 4. Debug logs
+    # 4. SEND SMS NOTIFICATIONS
+    if twilio_client:
+        for donor in nearby_donors:
+            try:
+                # Format phone number for Twilio (ensure + prefix)
+                to_phone = donor.phone.strip()
+                if not to_phone.startswith('+'):
+                    to_phone = f"+91{to_phone}"  # Assuming +91 as per project context
+                
+                message_body = f"🚨 URGENT: Blood needed ({request.blood_type}) at {hospital.name}. Please respond immediately."
+                
+                twilio_client.messages.create(
+                    body=message_body,
+                    from_=TWILIO_PHONE_NUMBER,
+                    to=to_phone
+                )
+                print(f"[SMS SUCCESS] SMS sent to {donor.name}")
+            except Exception as e:
+                print(f"[SMS ERROR] Error sending SMS to {donor.phone}: {e}")
+    else:
+        # Fallback: Simulate notifications in the terminal
+        for donor in nearby_donors:
+            print(f"[SMS MOCK] Sending SMS to {donor.name} ({donor.phone})")
+
+    # 5. Debug logs
     print(f"\n[ALERT] Blood Request Posted for {request.blood_type}")
     print(f"Hospital: {hospital.name}")
     print(f"Matched donors: {len(nearby_donors)}")
@@ -120,21 +199,13 @@ def create_blood_request(request: schemas.BloodRequestCreate, db: Session = Depe
             "urgency_level": db_request.urgency_level,
             "message": db_request.message
         },
-        "notified_donors": [
+        "matched_donors": [
             {
                 "id": d.id,
                 "name": d.name,
                 "phone": d.phone,
                 "blood_group": d.blood_group
-            } for d in nearby_donors[:3]
-        ],
-        "other_donors": [
-            {
-                "id": d.id,
-                "name": d.name,
-                "phone": d.phone,
-                "blood_group": d.blood_group
-            } for d in nearby_donors[3:]
+            } for d in nearby_donors
         ]
     }
 

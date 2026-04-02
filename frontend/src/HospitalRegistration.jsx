@@ -89,15 +89,33 @@ const HospitalRegistration = () => {
         setIsSubmitting(true);
         setIsSuccess(false);
 
+        // Map frontend fields to backend schema (HospitalCreate model)
+        const payload = {
+            name: formData.hospital_name,
+            registration_number: formData.registration_number,
+            hospital_type: formData.hospital_type,
+            contact_details: `Primary: ${formData.contact_number}, Emergency: ${formData.emergency_contact}, In-charge Phone: ${formData.incharge_contact}`,
+            email: formData.email,
+            in_charge_name: formData.incharge_name,
+            number_of_beds: parseInt(formData.number_of_beds, 10),
+            opening_time: formData.opening_time,
+            closing_time: formData.closing_time,
+            address: `${formData.address_street}, ${formData.address_city}, ${formData.address_state} - ${formData.address_pin}`,
+            latitude: parseFloat(formData.latitude) || 0.0,
+            longitude: parseFloat(formData.longitude) || 0.0
+        };
+
+        console.log("Submitting hospital registration payload:", payload);
+
         try {
-            await registerHospital(formData);
+            await registerHospital(payload);
             setIsSuccess(true);
             setFormData(initialFormData);
             setTermsAgreed(false);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } catch (error) {
             console.error('Error registering hospital:', error);
-            alert('Failed to register hospital. Please check if the backend is running.');
+            alert('Failed to register hospital. Please check if the backend is running and data is valid.');
         } finally {
             setIsSubmitting(false);
         }

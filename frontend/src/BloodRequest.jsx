@@ -67,7 +67,7 @@ const BloodRequest = () => {
                                 <i className="fas fa-check-circle fa-4x text-success mb-3"></i>
                                 <h2 className="text-success">Request Posted Successfully!</h2>
                                 <p className="text-muted">
-                                    A total of <strong>{result.notified_donors.length}</strong> donors were notified based on priority.
+                                    A total of <strong>{result.matched_donors.length}</strong> donors were matched based on priority.
                                 </p>
                             </div>
 
@@ -76,33 +76,37 @@ const BloodRequest = () => {
                             <div className="row">
                                 <div className="col-md-6 border-end">
                                     <h4 className="mb-4"><i className="fas fa-bell text-success me-2"></i> Notified Donors</h4>
-                                    {result.notified_donors.length > 0 ? (
-                                        result.notified_donors.map((donor, idx) => (
-                                            <div key={idx} className="donor-list-item notified-donor">
-                                                <div className="donor-icon">
-                                                    <i className="fas fa-user-check fa-2x text-success"></i>
+                                    {result.matched_donors.slice(0, 3).length > 0 ? (
+                                        result.matched_donors.slice(0, 3).map((donor, idx) => {
+                                            console.log("Rendering Match:", donor);
+                                            return (
+                                                <div key={idx} className="donor-list-item notified-donor">
+                                                    <div className="donor-icon">
+                                                        <i className="fas fa-user-check fa-2x text-success"></i>
+                                                    </div>
+                                                    <div className="donor-info">
+                                                        <h5>{donor.name}</h5>
+                                                        <p><i className="fas fa-phone-alt me-1"></i> {donor.phone}</p>
+                                                        <p><i className="fas fa-tint me-1"></i> {donor.blood_group}</p>
+                                                    </div>
                                                 </div>
-                                                <div className="donor-info">
-                                                    <h5>{donor.name}</h5>
-                                                    <p><i className="fas fa-phone-alt me-1"></i> {donor.phone}</p>
-                                                    <p><i className="fas fa-tint me-1"></i> {donor.blood_group}</p>
-                                                </div>
-                                            </div>
-                                        ))
+                                            );
+                                        })
                                     ) : (
                                         <p className="text-muted">No immediate donors matched the criteria.</p>
                                     )}
                                 </div>
                                 <div className="col-md-6">
                                     <h4 className="mb-4"><i className="fas fa-users text-info me-2"></i> Waiting List</h4>
-                                    {result.other_donors.length > 0 ? (
-                                        result.other_donors.map((donor, idx) => (
+                                    {result.matched_donors.slice(3).length > 0 ? (
+                                        result.matched_donors.slice(3).map((donor, idx) => (
                                             <div key={idx} className="donor-list-item not-selected-donor">
                                                 <div className="donor-icon">
                                                     <i className="fas fa-user-clock fa-2x text-muted"></i>
                                                 </div>
                                                 <div className="donor-info">
                                                     <h5>{donor.name}</h5>
+                                                    <p><i className="fas fa-phone-alt me-1"></i> {donor.phone}</p>
                                                     <p><i className="fas fa-tint me-1"></i> {donor.blood_group}</p>
                                                     <small className="text-muted">Will be notified if units are still needed.</small>
                                                 </div>

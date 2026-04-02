@@ -1,7 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './DonorRegistration.css';
+
+// Custom hook for animated numbers
+const useCountUp = (target, duration = 2000) => {
+    const [count, setCount] = useState(0);
+    const countRef = useRef(0);
+    
+    useEffect(() => {
+        // Defensive check: only animate if target is a valid number
+        if (typeof target !== 'number' || isNaN(target)) {
+            setCount(target || 0);
+            return;
+        }
+
+        let start = null;
+        const initialCount = countRef.current;
+        
+        const step = (timestamp) => {
+            if (!start) start = timestamp;
+            const progress = Math.min((timestamp - start) / duration, 1);
+            const currentCount = Math.floor(progress * (target - initialCount) + initialCount);
+            setCount(currentCount);
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                countRef.current = target;
+            }
+        };
+        
+        window.requestAnimationFrame(step);
+    }, [target, duration]);
+    
+    return count;
+};
+
+const StatCard = ({ value, label, className }) => {
+    const animatedValue = useCountUp(value);
+    return (
+        <div className="stats-card">
+            <h2 className={className}>{animatedValue}{label === "Response Time" ? "" : ""}</h2>
+            <p className="mb-0">{label}</p>
+        </div>
+    );
+};
 
 const Home = () => {
     const navigate = useNavigate();
@@ -9,14 +52,30 @@ const Home = () => {
         donors: 0,
         hospitals: 0
     });
+    const [news, setNews] = useState([]);
 
     useEffect(() => {
-        const fetchStats = async () => {
-            const res = await axios.get("http://127.0.0.1:8000/stats");
-            setStats(res.data);
+        const fetchData = async () => {
+            try {
+                // Fetch stats and news in parallel using axios
+                const [statsRes, newsRes] = await Promise.all([
+                    axios.get("http://127.0.0.1:8000/stats"),
+                    axios.get("http://127.0.0.1:8000/news")
+                ]);
+                
+                setStats(statsRes.data);
+                setNews(newsRes.data);
+            } catch (error) {
+                console.error("Error fetching home data:", error);
+            }
         };
-        fetchStats();
+
+        fetchData();
+        // Polling every 10 seconds for "Live" updates
+        const interval = setInterval(fetchData, 10000);
+        return () => clearInterval(interval);
     }, []);
+
     return (
         <div className="container">
             {/* Hero Section */}
@@ -58,7 +117,7 @@ const Home = () => {
                         <p className="text-center">Register your hospital to get access to our network of urgent blood donors.</p>
                         <button
                             onClick={() => navigate('/hospital')}
-                            className="btn btn-hospital w-100 mt-3 enter justify-content-center"
+                            className="btn btn-hospital w-100 mt-3 d-flex align-items-center justify-content-center"
                         >
                             <i className="fas fa-hand-holding-heart me-2"></i> Hospital Registration
                         </button>
@@ -87,16 +146,10 @@ const Home = () => {
             {/* Stats Row */}
             <div className="row mt-4">
                 <div className="col-md-3">
-                    <div className="stats-card">
-                        <h2 className="text-danger">{stats.donors}</h2>
-                        <p className="mb-0">Registered Donors</p>
-                    </div>
+                    <StatCard value={stats.donors} label="Registered Donors" className="text-danger" />
                 </div>
                 <div className="col-md-3">
-                    <div className="stats-card">
-                        <h2 className="text-primary">{stats.hospitals}</h2>
-                        <p className="mb-0">Partner Hospitals</p>
-                    </div>
+                    <StatCard value={stats.hospitals} label="Partner Hospitals" className="text-primary" />
                 </div>
                 <div className="col-md-3">
                     <div className="stats-card">
@@ -113,35 +166,31 @@ const Home = () => {
             </div>
 
 
-            {/* News & Community */}
+            {/* News & Community Section */}
             <div className="row mt-5">
                 <div className="col-12">
                     <div className="info-section">
                         <h2 className="text-center"><i className="fas fa-bullhorn"></i> Community & News</h2>
                         <p className="text-center text-muted">Find nearby blood donation drives and stay informed.</p>
+                        
                         <div className="list-group mt-4">
-                            <div className="list-group-item list-group-item-action flex-column align-items-start">
-                                <div className="d-flex w-100 justify-content-between">
-                                    <h5 className="mb-1 text-primary">City Hall Blood Drive</h5>
-                                    <small className="text-muted">3 days ago</small>
+                            {news.length > 0 ? news.map((item, idx) => (
+                                <div key={item.id || idx} className="list-group-item list-group-item-action flex-column align-items-start mt-2">
+                                    <div className="d-flex w-100 justify-content-between">
+                                        <h5 className="mb-1 text-primary">{item.camp_name || 'Blood Donation Drive'}</h5>
+                                        <small className="text-muted"><i className="far fa-clock me-1"></i> {item.date}</small>
+                                    </div>
+                                    <p className="mb-1">{item.description || 'Join us for a blood donation drive and help save lives.'}</p>
+                                    <div className="mt-2">
+                                        <small className="text-success"><i className="fas fa-calendar-alt me-1"></i> {item.date}</small>
+                                        <small className="text-danger ms-3"><i className="fas fa-map-marker-alt me-1"></i> {item.location}</small>
+                                    </div>
                                 </div>
-                                <p className="mb-1">Donate blood at the annual city hall drive. Every donation saves up to 3 lives!</p>
-                                <div className="mt-2">
-                                    <small className="text-success"><i className="fas fa-calendar-alt me-1"></i> Sep 10, 2025</small>
-                                    <small className="text-danger ms-3"><i className="fas fa-map-marker-alt me-1"></i> New Delhi</small>
+                            )) : (
+                                <div className="text-center py-4 bg-white rounded-3 shadow-sm">
+                                    <p className="text-muted mb-0">No recent news or donation drives found at the moment.</p>
                                 </div>
-                            </div>
-                            <div className="list-group-item list-group-item-action flex-column align-items-start mt-2">
-                                <div className="d-flex w-100 justify-content-between">
-                                    <h5 className="mb-1 text-primary">Red Cross Mobile Donation Camp</h5>
-                                    <small className="text-muted">1 week ago</small>
-                                </div>
-                                <p className="mb-1">The Red Cross is hosting a mobile camp in Sector 5. All blood types are needed!</p>
-                                <div className="mt-2">
-                                    <small className="text-success"><i className="fas fa-calendar-alt me-1"></i> Sep 18, 2025</small>
-                                    <small className="text-danger ms-3"><i className="fas fa-map-marker-alt me-1"></i> Sector 5, Haryana</small>
-                                </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>
